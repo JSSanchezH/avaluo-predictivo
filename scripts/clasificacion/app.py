@@ -42,23 +42,30 @@ input_data['Examen_admisión_Universidad'] = standard_scaler.transform(input_dat
 # Concatenar características
 processed_input = pd.concat([input_data.drop('Felder', axis=1), felder_encoded_df], axis=1)
 
-
-expected_columns = [
-    'Examen_admisión_Universidad', 'Felder_activo', 'Felder_equilibrio', 'Felder_intuitivo', 
-    'Felder_reflexivo', 'Felder_secuencial', 'Felder_sensorial', 'Felder_verbal', 'Felder_visual'
-]
-processed_input = processed_input.reindex(columns=expected_columns, fill_value=0)
+# Alinear columnas con las del modelo
+if hasattr(model, "feature_names_in_"):
+    processed_input = processed_input.reindex(columns=model.feature_names_in_, fill_value=0)
+else:
+    expected_columns = [
+        'Examen_admisión_Universidad', 'Felder_activo', 'Felder_equilibrio', 'Felder_intuitivo', 
+        'Felder_reflexivo', 'Felder_secuencial', 'Felder_sensorial', 'Felder_verbal', 'Felder_visual'
+    ]
+    processed_input = processed_input.reindex(columns=expected_columns, fill_value=0)
 
 # --- Predicción ---
 if st.button('Predecir'):
-    prediction = model.predict(processed_input)[0]
-    
-    
-    if hasattr(model, "predict_proba"):
-        prob = model.predict_proba(processed_input)[0]
-        prob_aprobado = prob[1]
-        st.write(f"Probabilidad de aprobación: **{prob_aprobado:.2%}**")
+    try:
+        prediction = model.predict(processed_input)[0]
+        
+        if hasattr(model, "predict_proba"):
+            prob = model.predict_proba(processed_input)[0]
+            prob_aprobado = prob[1]
+            st.write(f"Probabilidad de aprobación: **{prob_aprobado:.2%}**")
 
-    # Mostrar resultado final
-    resultado = "Aprobado" if prediction == 1 else "No aprobado"
-    st.subheader(f"Predicción: {resultado}")
+        resultado = "Aprobado" if prediction == 1 else "No aprobado"
+        st.subheader(f"Predicción: {resultado}")
+
+    except Exception as e:
+        st.error(f"Ocurrió un error durante la predicción: {e}")
+        st.write("Columnas del modelo:", getattr(model, "feature_names_in_", "No definidas"))
+        st.write("Columnas del input procesado:", processed_input.columns.tolist())
