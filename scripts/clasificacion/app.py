@@ -60,9 +60,9 @@ if st.button('Predecir'):
         if hasattr(model, "predict_proba"):
             prob = model.predict_proba(processed_input)[0]
             prob_aprobado = prob[1]
-            st.write(f"Probabilidad de aprobación: **{prob_aprobado:.2%}**")
+            # st.write(f"Probabilidad de aprobación: **{prob_aprobado:.2%}**")
 
-        resultado = "Aprobado" if prediction == 1 else "No aprobado"
+        resultado = "Aprobado" if prediction >= 0.5 else "No aprobado"
         st.subheader(f"Predicción: {resultado}")
 
     except Exception as e:
