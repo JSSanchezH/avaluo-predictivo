@@ -1,13 +1,20 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
 
 # --- Cargar recursos (codificadores y modelo) ---
 @st.cache_resource
 def load_resources():
-    onehot_encoder = joblib.load('onehotencoder.pkl')
-    standard_scaler = joblib.load('standard_scaler.pkl')
-    model = joblib.load('rf_model.pkl')
+    base_path = os.path.dirname(__file__)
+    
+    onehot_path = os.path.join(base_path, 'onehotencoder.pkl')
+    scaler_path = os.path.join(base_path, 'standard_scaler.pkl')
+    model_path = os.path.join(base_path, 'rf_model.pkl')
+
+    onehot_encoder = joblib.load(onehot_path)
+    standard_scaler = joblib.load(scaler_path)
+    model = joblib.load(model_path)
     return onehot_encoder, standard_scaler, model
 
 onehot_encoder, standard_scaler, model = load_resources()
