@@ -74,8 +74,8 @@ if st.checkbox("Mostrar datos preprocesados"):
 # --- Predicción ---
 if st.button('Predecir'):
     try:
-        prediction = model.predict(processed_input)[0]
-        resultado = "Aprobado" if prediction == 1 else "No aprobado"
+        prediction = model.predict(processed_input)
+        resultado = "Aprobado" if prediction == 'si' else "No aprobado"
         st.subheader(f"Predicción: {resultado}")
 
         if hasattr(model, "predict_proba"):
