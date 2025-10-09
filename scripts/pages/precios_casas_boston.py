@@ -28,7 +28,11 @@ st.write("Ingrese los valores para predecir el valor promedio de la vivienda (`m
 
 # --- Entradas del usuario ---
 crim = st.number_input(
-    "crim: Tasa de crimen per cápita", min_value=0.0, value=0.01, step=0.0001
+    "crim: Tasa de crimen per cápita",
+    min_value=0.0,
+    value=0.01,
+    step=0.00001,
+    format="%.5f",
 )
 zn = st.number_input(
     "zn: Proporción de terrenos residenciales", min_value=0.0, value=0.0
@@ -36,7 +40,11 @@ zn = st.number_input(
 indus = st.number_input("indus: Áreas industriales (acres)", min_value=0.0, value=2.0)
 chas = st.selectbox("chas: ¿Frente al río Charles?", options=[0, 1])
 nox = st.number_input(
-    "nox: Contaminación por óxidos nítricos", min_value=0.0, value=0.5, step=0.0001
+    "nox: Contaminación por óxidos nítricos",
+    min_value=0.0,
+    value=0.5,
+    step=0.00001,
+    format="%.5f",
 )
 rm = st.number_input("rm: Número promedio de habitaciones", min_value=1.0, value=6.0)
 age = st.number_input("age: % de unidades antiguas (>1940)", min_value=0.0, value=60.0)
