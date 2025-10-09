@@ -8,9 +8,9 @@ import os
 def load_resources():
     base_path = os.path.dirname(__file__)
     
-    onehot_path = os.path.join(base_path, 'onehotencoder.pkl')
-    scaler_path = os.path.join(base_path, 'standard_scaler.pkl')
-    model_path = os.path.join(base_path, 'rf_model.pkl')
+    onehot_path = os.path.join(base_path, '/models/onehotencoder.pkl')
+    scaler_path = os.path.join(base_path, '/models/standard_scaler.pkl')
+    model_path = os.path.join(base_path, '/models/rf_model.pkl')
 
     onehot_encoder = joblib.load(onehot_path)
     standard_scaler = joblib.load(scaler_path)
