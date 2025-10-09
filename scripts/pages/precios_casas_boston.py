@@ -43,6 +43,7 @@ input_data = pd.DataFrame([[
     'crim', 'zn', 'indus', 'chas', 'nox', 'rm', 'age',
     'dis', 'rad', 'tax', 'ptratio', 'black', 'lstat'
 ])
+input_data['chas'] = input_data['chas'].astype('category')
 
 # --- Mostrar input si el usuario lo desea ---
 if st.checkbox("Mostrar datos de entrada"):
