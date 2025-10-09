@@ -43,7 +43,6 @@ input_data = pd.DataFrame([[
     'crim', 'zn', 'indus', 'chas', 'nox', 'rm', 'age',
     'dis', 'rad', 'tax', 'ptratio', 'black', 'lstat'
 ])
-input_data['chas'] = input_data['chas'].astype('category')
 
 # --- Mostrar input si el usuario lo desea ---
 if st.checkbox("Mostrar datos de entrada"):
@@ -56,8 +55,10 @@ if st.button("Predecir valor de vivienda"):
         # Escalar
         input_scaled = scaler.transform(input_data)
 
+        input_array = input_scaled.reshape(1, -1)
+
         # Predecir
-        prediction = model.predict(input_scaled)[0]
+        prediction = model.predict(input_array)[0]
         st.subheader(f"Predicción del valor promedio de la vivienda: **${prediction:.2f} mil dólares**")
 
     except Exception as e:
