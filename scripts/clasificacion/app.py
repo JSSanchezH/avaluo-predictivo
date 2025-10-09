@@ -62,7 +62,7 @@ if st.button('Predecir'):
             prob_aprobado = prob[1]
             # st.write(f"Probabilidad de aprobación: **{prob_aprobado:.2%}**")
 
-        resultado = "Aprobado" if prediction >= 0.5 else "No aprobado"
+        resultado = "Aprobado" if prediction == 1 else "No aprobado"
         st.subheader(f"Predicción: {resultado}")
 
     except Exception as e:
