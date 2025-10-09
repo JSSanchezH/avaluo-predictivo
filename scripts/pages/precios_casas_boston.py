@@ -7,8 +7,8 @@ import os
 @st.cache_resource
 def load_resources():
     base_path = os.path.dirname(__file__)
-    model_path = os.path.join(base_path, 'models', 'br_model.pkl')
-    scaler_path = os.path.join(base_path, 'models', 'standard_scaler.pkl')
+    model_path = os.path.join(base_path, '..', 'models','precios_casas_boston', 'br_model.pkl')
+    scaler_path = os.path.join(base_path, '..', 'models','precios_casas_boston', 'standard_scaler.pkl')
 
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
