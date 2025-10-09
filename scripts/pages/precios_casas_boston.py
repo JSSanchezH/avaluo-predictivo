@@ -62,5 +62,7 @@ if st.button("Predecir valor de vivienda"):
         st.subheader(f"Predicción del valor promedio de la vivienda: **${prediction:.2f} mil dólares**")
 
     except Exception as e:
+        st.write("Columnas esperadas por el modelo:", getattr(model, "feature_names_in_", "No disponible"))
+        st.write("Columnas input:", input_data.columns.tolist())
         st.error(f"Ocurrió un error durante la predicción: {e}")
         st.write("Datos procesados:", input_data)
