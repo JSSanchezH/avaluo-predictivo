@@ -86,6 +86,23 @@ input_data = pd.DataFrame(
 )
 
 input_data["chas"] = input_data["chas"].astype("category")
+
+cols_to_scale = [
+    "crim",
+    "zn",
+    "indus",
+    "nox",
+    "rm",
+    "age",
+    "dis",
+    "rad",
+    "tax",
+    "ptratio",
+    "black",
+    "lstat",
+]
+
+
 # --- Mostrar input si el usuario lo desea ---
 if st.checkbox("Mostrar datos de entrada"):
     st.write("Datos ingresados:")
@@ -94,13 +111,15 @@ if st.checkbox("Mostrar datos de entrada"):
 # --- Predicción ---
 if st.button("Predecir valor de vivienda"):
     try:
-        # Escalar
-        input_scaled = scaler.transform(input_data)
+        # Escalar solo estas columnas
+        input_scaled_values = scaler.transform(input_data[cols_to_scale])
 
-        input_array = input_scaled.reshape(1, -1)
+        # Reconstruir el DataFrame con 'chas' incluida
+        input_scaled = pd.DataFrame(input_scaled_values, columns=cols_to_scale)
+        input_scaled["chas"] = input_data["chas"]
 
         # Predecir
-        prediction = model.predict(input_array)[0]
+        prediction = model.predict(input_scaled)[0]
         st.subheader(
             f"Predicción del valor promedio de la vivienda: **${prediction:.2f} mil dólares**"
         )
