@@ -42,7 +42,7 @@ try:
 
     # Escalar 'Examen_admisión_Universidad'
     input_data_scaled = input_data.copy()
-    input_data_scaled['Examen_admisión_Universidad'] = standard_scaler.transform(
+    input_data_scaled['Examen_admisión_Universidad_scaled'] = standard_scaler.transform(
         input_data_scaled[['Examen_admisión_Universidad']]
     )
 
