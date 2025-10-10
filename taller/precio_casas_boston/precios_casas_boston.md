@@ -224,7 +224,7 @@ Por ejemplo, una vivienda con **RM = 6.5**, **LSTAT = 10**, **DIS = 5** puede te
 El modelo fue implementado usando **Streamlit** y desplegado en **Streamlit Cloud**.
 La aplicación permite ingresar datos manualmente o cargar archivos `.csv` para obtener predicciones en tiempo real.
 
-[Haz clic aquí para abrir la aplicación](https://multipage-a96sukjk59keo5m9i7tnbg.streamlit.app/precios_casas_boston)
+[Haz clic aquí para abrir la aplicación](https://machine-learning-dashboard.streamlit.app/precios_casas_boston)
 
 ### ⚙️ **Demostración del funcionamiento**
 
