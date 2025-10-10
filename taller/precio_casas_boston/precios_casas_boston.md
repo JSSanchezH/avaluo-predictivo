@@ -122,52 +122,85 @@ No aplica (problema de regresión).
 
 ### 4. MODELAMIENTO Y EVALUACIÓN
 
+---
+
 #### 4.1 Configuración y selección de métodos de Machine Learning
 
 ##### 4.1.1 Modelos clásicos seleccionados
 
-- Regresión Lineal
-- KNN Regressor
-- Decision Tree Regressor
-- Random Forest Regressor
-- MLP Regressor
+Se implementaron y compararon diversos algoritmos de regresión clásicos, buscando un equilibrio entre interpretabilidad y capacidad predictiva:
+
+- **Bayesian Ridge Regression**
+- **K-Nearest Neighbors (KNN) Regressor**
+- **Decision Tree Regressor**
+- **Multi-Layer Perceptron (MLP) Regressor**
 
 ##### 4.1.2 Modelos de Ensamble
 
-- **Votación (Voting Regressor)**
-- **Bagging (Random Forest)**
-- **Boosting (Gradient Boosting)**
+Con el objetivo de mejorar la estabilidad y el desempeño del modelo, se probaron técnicas de ensamble que combinan múltiples estimadores:
+
+- **Bagging Regressor**
+- **Random Forest Regressor**
+- **Stacking Regressor**
+
+---
 
 #### 4.2 Ajuste de hiperparámetros
 
-Se usó el **70% de los datos para entrenamiento** y **30% para prueba**.
-Se aplicó **Cross Validation (k=5)** para optimizar hiperparámetros.
+Se dividieron los datos en **70% para entrenamiento** y **30% para prueba**.  
+El ajuste de hiperparámetros se realizó mediante **validación cruzada (Cross Validation, k = 5)** para garantizar la robustez de los resultados.
 
 ##### 4.2.1 Justificación de la métrica
 
-Se seleccionó **MAE** y **MAPE** por su interpretabilidad en unidades monetarias y porcentuales.
+Las métricas seleccionadas fueron:
+
+- **MAE (Mean Absolute Error)**: facilita la interpretación en unidades monetarias.
+- **MAPE (Mean Absolute Percentage Error)**: permite evaluar el error relativo en términos porcentuales.
+
+Debido a su relevancia práctica, **MAPE** fue la métrica principal para la comparación de modelos.
 
 ##### 4.2.2 Ajuste de modelos clásicos
 
-GridSearchCV se empleó para ajustar hiperparámetros como:
+Se empleó **GridSearchCV** para optimizar los parámetros más relevantes en cada modelo:
 
-- `n_neighbors` (KNN)
-- `max_depth` (Árboles)
-- `hidden_layer_sizes` y `alpha` (MLP)
+- `n_neighbors` en **KNN Regressor**
+- `max_depth` en **Decision Tree Regressor**
+- `hidden_layer_sizes` y `alpha` en **MLP Regressor**
 
 ##### 4.2.3 Ajuste de modelos de ensamble
 
-Se optimizaron parámetros como número de árboles (`n_estimators`) y tasa de aprendizaje (`learning_rate`).
+Para los modelos de ensamble, se exploraron parámetros como:
+
+- `n_estimators`: número de estimadores o árboles base.
+- `max_samples`: proporción de muestras usadas por cada estimador.
+- `max_features`: proporción de características seleccionadas aleatoriamente.
+- `bootstrap` y `bootstrap_features`: control del muestreo con reemplazo.
+
+---
 
 #### 4.3 Medida de calidad del modelo
 
-##### 4.3.1 Evaluación con set de pruebas
+##### 4.3.1 Evaluación con conjunto de prueba
 
-El modelo final se evaluó con métricas MAE, MAPE y RMSE.
+El desempeño de los modelos se evaluó con las métricas **MAE**, **MAPE** y **RMSE**, concentrando el análisis en **MAPE** por su claridad interpretativa en términos porcentuales.
 
 ##### 4.3.2 Selección del mejor modelo
 
-El **Gradient Boosting Regressor** obtuvo el mejor desempeño general.
+Entre todos los modelos evaluados, el **Bagging Regressor** mostró el **mejor desempeño general**, alcanzando los siguientes resultados tras una búsqueda expandida de hiperparámetros:
+
+```text
+Best parameters for Bagging Regressor (expanded search):
+{
+  'bootstrap': False,
+  'bootstrap_features': True,
+  'max_features': 0.9,
+  'max_samples': 1.0,
+  'n_estimators': 12
+}
+
+Best cross-validation MAPE: 0.09962698495234013
+Test set MAPE: 0.09
+```
 
 ---
 
@@ -193,6 +226,20 @@ La aplicación permite ingresar datos manualmente o cargar archivos `.csv` para 
 
 [Haz clic aquí para abrir la aplicación](https://multipage-a96sukjk59keo5m9i7tnbg.streamlit.app/precios_casas_boston)
 
+### ⚙️ **Demostración del funcionamiento**
+
+#### ✍️ **Entrada manual de datos**
+
+En esta vista, el usuario puede **ingresar manualmente** las características de una vivienda (como número de habitaciones, área, antigüedad, etc.) y obtener una **predicción inmediata** del precio estimado:
+
+![Predicción manual](images/evidencia_1.png)
+
+#### 📁 **Carga de archivo CSV**
+
+La aplicación también permite **subir un archivo `.csv`** con múltiples registros para generar **predicciones por lotes**, automatizando el análisis de varios inmuebles al mismo tiempo:
+
+![Predicción por CSV](images/evidencia_2.png)
+
 ---
 
 ### 💻 Tecnologías utilizadas
@@ -210,3 +257,7 @@ La aplicación permite ingresar datos manualmente o cargar archivos `.csv` para 
 [LinkedIn](https://www.linkedin.com/in/jssanchezh/)
 
 ---
+
+```
+
+```
