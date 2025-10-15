@@ -323,7 +323,7 @@ El modelo será implementado en una aplicación interactiva desarrollada con **S
 - Ingresar manualmente los datos de un predio para obtener una predicción instantánea.
 - Cargar un archivo `.csv` con múltiples registros para realizar predicciones masivas.
 
-> [Haz clic aquí para abrir la aplicación](https://machine-learning-dashboard.streamlit.app/precios_casas_cali) _(URL de ejemplo, pendiente de despliegue real)_
+> [Haz clic aquí para abrir la aplicación](https://machine-learning-dashboard.streamlit.app/precios_casas_cali)
 
 ---
 
