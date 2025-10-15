@@ -45,16 +45,8 @@ model, scaler, encoder = load_resources()
 # =========================================================
 # CONFIGURACIÓN DE VARIABLES
 # =========================================================
-cols_numericas = [
-    "AREA_CONSTRUCCION",
-    "AREA_TERRENO",
-    "AREA_ANEXO",
-]
-cols_categoricas = [
-    "COMUNA",
-    "DESCRIP_CONDICION_PROPIEDAD",
-    "TIENE_ANEXO",
-]
+cols_numericas = ["AREA_CONSTRUCCION", "AREA_TERRENO", "AREA_ANEXO", "TIENE_ANEXO"]
+cols_categoricas = ["COMUNA", "DESCRIP_CONDICION_PROPIEDAD"]
 todas_cols = cols_numericas + cols_categoricas
 
 condiciones = [
@@ -77,25 +69,28 @@ modo = st.radio(
 # =========================================================
 def preparar_datos(df):
     """Ajusta columnas, crea TIENE_ANEXO y aplica escalado + codificación."""
-    # Renombrar si vienen con nombre alterno
     df = df.rename(columns={"AREA_CONSTRUIDA": "AREA_CONSTRUCCION"})
 
-    # Generar TIENE_ANEXO automáticamente
     if "TIENE_ANEXO" not in df.columns:
         df["TIENE_ANEXO"] = (df["AREA_ANEXO"] > 0).astype(int)
 
-    # Escalar numéricas
-    scaled = scaler.transform(df[cols_numericas])
-    df_scaled = pd.DataFrame(scaled, columns=cols_numericas)
+    # Escalar solo variables numéricas (sin TIENE_ANEXO)
+    numericas_escalar = ["AREA_CONSTRUCCION", "AREA_TERRENO", "AREA_ANEXO"]
+    scaled = scaler.transform(df[numericas_escalar])
+    df_scaled = pd.DataFrame(scaled, columns=numericas_escalar)
 
     # Codificar categóricas
-    encoded = encoder.transform(df[cols_categoricas])
+    categoricas_codificar = ["COMUNA", "DESCRIP_CONDICION_PROPIEDAD"]
+    encoded = encoder.transform(df[categoricas_codificar])
     encoded_df = pd.DataFrame(
-        encoded, columns=encoder.get_feature_names_out(cols_categoricas)
+        encoded, columns=encoder.get_feature_names_out(categoricas_codificar)
     )
 
-    # Concatenar
-    X = pd.concat([df_scaled, encoded_df], axis=1)
+    # Mantener TIENE_ANEXO binaria
+    df_binaria = df[["TIENE_ANEXO"]].reset_index(drop=True)
+
+    # Concatenar todo
+    X = pd.concat([df_scaled, df_binaria, encoded_df], axis=1)
     return X
 
 
@@ -137,7 +132,6 @@ if modo == "Ingreso manual":
         ],
     )
 
-    # Generar TIENE_ANEXO automáticamente
     df_input["TIENE_ANEXO"] = (df_input["AREA_ANEXO"] > 0).astype(int)
 
     if st.checkbox("📋 Mostrar datos ingresados"):
