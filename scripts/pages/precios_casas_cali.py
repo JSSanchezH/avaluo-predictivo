@@ -53,7 +53,6 @@ cols_numericas = [
 cols_categoricas = [
     "COMUNA",
     "DESCRIP_CONDICION_PROPIEDAD",
-    "TIENE_ANEXO",
 ]
 todas_cols = cols_numericas + cols_categoricas
 
