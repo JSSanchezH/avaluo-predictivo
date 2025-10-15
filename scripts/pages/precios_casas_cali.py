@@ -47,20 +47,46 @@ model, scaler, encoder = load_resources()
 # CONFIGURACIÓN DE VARIABLES
 # =========================================================
 cols_numericas = [
-    "AREA_CONSTRUIDA",
+    "AREA_CONSTRUCCION",  # nombre corregido según el modelo
     "AREA_TERRENO",
     "ANTIGUEDAD",
     "ESTRATO",
     "AREA_ANEXO",
 ]
-
 cols_categoricas = ["BARRIO", "TIENE_ANEXO"]
-
 todas_cols = cols_numericas + cols_categoricas
 
 modo = st.radio(
     "Selecciona el modo de ingreso de datos:", ["Ingreso manual", "Subir archivo CSV"]
 )
+
+
+# =========================================================
+# FUNCIÓN AUXILIAR DE PREPROCESAMIENTO
+# =========================================================
+def preparar_datos(df):
+    """Ajusta nombres, genera TIENE_ANEXO y transforma datos."""
+    # Renombrar columnas si es necesario
+    df = df.rename(columns={"AREA_CONSTRUIDA": "AREA_CONSTRUCCION"})
+
+    # Crear la columna TIENE_ANEXO automáticamente
+    if "TIENE_ANEXO" not in df.columns:
+        df["TIENE_ANEXO"] = (df["AREA_ANEXO"] > 0).astype(int)
+
+    # Escalar variables numéricas
+    scaled = scaler.transform(df[cols_numericas])
+    df_scaled = pd.DataFrame(scaled, columns=cols_numericas)
+
+    # Codificar variables categóricas
+    encoded = encoder.transform(df[cols_categoricas])
+    encoded_df = pd.DataFrame(
+        encoded, columns=encoder.get_feature_names_out(cols_categoricas)
+    )
+
+    # Concatenar ambas partes
+    X = pd.concat([df_scaled, encoded_df], axis=1)
+    return X
+
 
 # =========================================================
 # MODO 1 — INGRESO MANUAL
@@ -83,7 +109,6 @@ if modo == "Ingreso manual":
         )
 
     with col2:
-        tiene_anexo = st.selectbox("¿Tiene anexo?", ["No", "Sí"])
         area_anexo = st.number_input(
             "Área del anexo (m²)",
             min_value=0.0,
@@ -94,41 +119,26 @@ if modo == "Ingreso manual":
         barrio = st.text_input("Barrio o zona", value="Centro")
 
     df_input = pd.DataFrame(
-        [
-            [
-                area_const,
-                area_terr,
-                antiguedad,
-                estrato,
-                area_anexo,
-                barrio,
-                1 if tiene_anexo == "Sí" else 0,
-            ]
+        [[area_const, area_terr, antiguedad, estrato, area_anexo, barrio]],
+        columns=[
+            "AREA_CONSTRUCCION",
+            "AREA_TERRENO",
+            "ANTIGUEDAD",
+            "ESTRATO",
+            "AREA_ANEXO",
+            "BARRIO",
         ],
-        columns=cols_numericas + ["BARRIO", "TIENE_ANEXO"],
     )
+
+    df_input["TIENE_ANEXO"] = (df_input["AREA_ANEXO"] > 0).astype(int)
 
     if st.checkbox("📋 Mostrar datos ingresados"):
         st.dataframe(df_input)
 
     if st.button("🔮 Predecir Avalúo"):
         try:
-            # Escalar variables numéricas
-            scaled = scaler.transform(df_input[cols_numericas])
-            df_scaled = pd.DataFrame(scaled, columns=cols_numericas)
-
-            # Codificar variables categóricas
-            encoded = encoder.transform(df_input[cols_categoricas])
-            encoded_df = pd.DataFrame(
-                encoded, columns=encoder.get_feature_names_out(cols_categoricas)
-            )
-
-            # Concatenar ambas partes
-            X = pd.concat([df_scaled, encoded_df], axis=1)
-
-            # Predicción
+            X = preparar_datos(df_input)
             prediccion = model.predict(X)[0]
-
             st.success(f"💰 Avalúo estimado del inmueble: **${prediccion:,.0f} COP**")
 
         except Exception as e:
@@ -146,13 +156,12 @@ else:
     st.markdown(
         """
         Sube un archivo `.csv` que contenga las siguientes columnas:
-        - **AREA_CONSTRUIDA**
+        - **AREA_CONSTRUCCION** (o AREA_CONSTRUIDA, se ajusta automáticamente)
         - **AREA_TERRENO**
         - **ANTIGUEDAD**
         - **ESTRATO**
         - **AREA_ANEXO**
         - **BARRIO**
-        - **TIENE_ANEXO** (0 = No, 1 = Sí)
         """
     )
 
@@ -164,25 +173,17 @@ else:
             st.write("Vista previa de los datos:")
             st.dataframe(df_input.head())
 
-            # Validación de columnas
+            # Ajustar nombres y generar columnas necesarias
+            df_input = df_input.rename(columns={"AREA_CONSTRUIDA": "AREA_CONSTRUCCION"})
+            if "TIENE_ANEXO" not in df_input.columns:
+                df_input["TIENE_ANEXO"] = (df_input["AREA_ANEXO"] > 0).astype(int)
+
+            # Validar columnas
             missing_cols = [c for c in todas_cols if c not in df_input.columns]
             if missing_cols:
                 st.error(f"❌ Faltan columnas obligatorias: {missing_cols}")
             else:
-                # Escalar variables numéricas
-                scaled = scaler.transform(df_input[cols_numericas])
-                df_scaled = pd.DataFrame(scaled, columns=cols_numericas)
-
-                # Codificar variables categóricas
-                encoded = encoder.transform(df_input[cols_categoricas])
-                encoded_df = pd.DataFrame(
-                    encoded, columns=encoder.get_feature_names_out(cols_categoricas)
-                )
-
-                # Concatenar ambas partes
-                X = pd.concat([df_scaled, encoded_df], axis=1)
-
-                # Predicciones
+                X = preparar_datos(df_input)
                 predicciones = model.predict(X)
                 df_input["AVALUO_PREDICHO"] = predicciones
 

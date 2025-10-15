@@ -147,7 +147,7 @@ Con el objetivo de mejorar la estabilidad y el desempeño del modelo, se probaro
 
 #### 4.2 Ajuste de hiperparámetros
 
-Se dividieron los datos en **70% para entrenamiento** y **30% para prueba**.  
+Se dividieron los datos en **70% para entrenamiento** y **30% para prueba**.
 El ajuste de hiperparámetros se realizó mediante **validación cruzada (Cross Validation, k = 5)** para garantizar la robustez de los resultados.
 
 ##### 4.2.1 Justificación de la métrica
