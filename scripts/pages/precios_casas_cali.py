@@ -53,6 +53,7 @@ cols_numericas = [
 cols_categoricas = [
     "COMUNA",
     "DESCRIP_CONDICION_PROPIEDAD",
+    "TIENE_ANEXO",
 ]
 todas_cols = cols_numericas + cols_categoricas
 
@@ -148,6 +149,8 @@ if modo == "Ingreso manual":
             prediccion = model.predict(X)[0]
             st.success(f"💰 Avalúo estimado del inmueble: **${prediccion:,.0f} COP**")
         except Exception as e:
+            st.write("🧠 Features esperadas por el modelo:", model.feature_names_in_)
+            st.write("📄 Features actuales:", X.columns.tolist())
             st.error(f"⚠️ Error durante la predicción: {e}")
             st.write(
                 "Columnas esperadas:",
