@@ -49,9 +49,12 @@ cols_numericas = [
     "AREA_CONSTRUCCION",
     "AREA_TERRENO",
     "AREA_ANEXO",
+]
+cols_categoricas = [
+    "COMUNA",
+    "DESCRIP_CONDICION_PROPIEDAD",
     "TIENE_ANEXO",
 ]
-cols_categoricas = ["COMUNA", "DESCRIP_CONDICION_PROPIEDAD"]
 todas_cols = cols_numericas + cols_categoricas
 
 condiciones = [
