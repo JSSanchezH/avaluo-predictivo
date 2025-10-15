@@ -37,7 +37,6 @@ def load_resources():
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
     encoder = joblib.load(encoder_path)
-
     return model, scaler, encoder
 
 
@@ -47,14 +46,23 @@ model, scaler, encoder = load_resources()
 # CONFIGURACIÓN DE VARIABLES
 # =========================================================
 cols_numericas = [
-    "AREA_CONSTRUCCION",  # nombre corregido según el modelo
+    "AREA_CONSTRUCCION",
     "AREA_TERRENO",
-    "ANTIGUEDAD",
-    "ESTRATO",
     "AREA_ANEXO",
+    "TIENE_ANEXO",
 ]
-cols_categoricas = ["BARRIO", "TIENE_ANEXO"]
+cols_categoricas = ["COMUNA", "DESCRIP_CONDICION_PROPIEDAD"]
 todas_cols = cols_numericas + cols_categoricas
+
+condiciones = [
+    "BIENES DE USO PUBLICO DIFERENTES A LAS VIAS",
+    "CONDOMINIO",
+    "MEJORAS POR EDIFICACIONES EN TERRENO AJENO DE PROPIEDADES REGLAMENTADAS EN PH",
+    "NPH",
+    "PARQUES CEMENTERIOS",
+    "PH",
+    "VIAS",
+]
 
 modo = st.radio(
     "Selecciona el modo de ingreso de datos:", ["Ingreso manual", "Subir archivo CSV"]
@@ -65,25 +73,25 @@ modo = st.radio(
 # FUNCIÓN AUXILIAR DE PREPROCESAMIENTO
 # =========================================================
 def preparar_datos(df):
-    """Ajusta nombres, genera TIENE_ANEXO y transforma datos."""
-    # Renombrar columnas si es necesario
+    """Ajusta columnas, crea TIENE_ANEXO y aplica escalado + codificación."""
+    # Renombrar si vienen con nombre alterno
     df = df.rename(columns={"AREA_CONSTRUIDA": "AREA_CONSTRUCCION"})
 
-    # Crear la columna TIENE_ANEXO automáticamente
+    # Generar TIENE_ANEXO automáticamente
     if "TIENE_ANEXO" not in df.columns:
         df["TIENE_ANEXO"] = (df["AREA_ANEXO"] > 0).astype(int)
 
-    # Escalar variables numéricas
+    # Escalar numéricas
     scaled = scaler.transform(df[cols_numericas])
     df_scaled = pd.DataFrame(scaled, columns=cols_numericas)
 
-    # Codificar variables categóricas
+    # Codificar categóricas
     encoded = encoder.transform(df[cols_categoricas])
     encoded_df = pd.DataFrame(
         encoded, columns=encoder.get_feature_names_out(cols_categoricas)
     )
 
-    # Concatenar ambas partes
+    # Concatenar
     X = pd.concat([df_scaled, encoded_df], axis=1)
     return X
 
@@ -103,12 +111,6 @@ if modo == "Ingreso manual":
         area_terr = st.number_input(
             "Área del terreno (m²)", min_value=20.0, value=120.0, step=1.0
         )
-        estrato = st.selectbox("Estrato socioeconómico", [1, 2, 3, 4, 5, 6])
-        antiguedad = st.number_input(
-            "Antigüedad (años)", min_value=0, max_value=100, value=10
-        )
-
-    with col2:
         area_anexo = st.number_input(
             "Área del anexo (m²)",
             min_value=0.0,
@@ -116,20 +118,23 @@ if modo == "Ingreso manual":
             step=1.0,
             help="Si no tiene anexo, dejar en 0.",
         )
-        barrio = st.text_input("Barrio o zona", value="Centro")
+
+    with col2:
+        comuna = st.number_input("Comuna", min_value=1, max_value=65, value=1, step=1)
+        condicion = st.selectbox("Condición de la propiedad", condiciones)
 
     df_input = pd.DataFrame(
-        [[area_const, area_terr, antiguedad, estrato, area_anexo, barrio]],
+        [[area_const, area_terr, area_anexo, comuna, condicion]],
         columns=[
             "AREA_CONSTRUCCION",
             "AREA_TERRENO",
-            "ANTIGUEDAD",
-            "ESTRATO",
             "AREA_ANEXO",
-            "BARRIO",
+            "COMUNA",
+            "DESCRIP_CONDICION_PROPIEDAD",
         ],
     )
 
+    # Generar TIENE_ANEXO automáticamente
     df_input["TIENE_ANEXO"] = (df_input["AREA_ANEXO"] > 0).astype(int)
 
     if st.checkbox("📋 Mostrar datos ingresados"):
@@ -140,7 +145,6 @@ if modo == "Ingreso manual":
             X = preparar_datos(df_input)
             prediccion = model.predict(X)[0]
             st.success(f"💰 Avalúo estimado del inmueble: **${prediccion:,.0f} COP**")
-
         except Exception as e:
             st.error(f"⚠️ Error durante la predicción: {e}")
             st.write(
@@ -156,12 +160,12 @@ else:
     st.markdown(
         """
         Sube un archivo `.csv` que contenga las siguientes columnas:
-        - **AREA_CONSTRUCCION** (o AREA_CONSTRUIDA, se ajusta automáticamente)
+        - **AREA_CONSTRUCCION** (o AREA_CONSTRUIDA)
         - **AREA_TERRENO**
-        - **ANTIGUEDAD**
-        - **ESTRATO**
         - **AREA_ANEXO**
-        - **BARRIO**
+        - **COMUNA**
+        - **DESCRIP_CONDICION_PROPIEDAD**
+        (La columna **TIENE_ANEXO** se calculará automáticamente)
         """
     )
 
@@ -173,20 +177,16 @@ else:
             st.write("Vista previa de los datos:")
             st.dataframe(df_input.head())
 
-            # Ajustar nombres y generar columnas necesarias
             df_input = df_input.rename(columns={"AREA_CONSTRUIDA": "AREA_CONSTRUCCION"})
             if "TIENE_ANEXO" not in df_input.columns:
                 df_input["TIENE_ANEXO"] = (df_input["AREA_ANEXO"] > 0).astype(int)
 
-            # Validar columnas
             missing_cols = [c for c in todas_cols if c not in df_input.columns]
             if missing_cols:
                 st.error(f"❌ Faltan columnas obligatorias: {missing_cols}")
             else:
                 X = preparar_datos(df_input)
-                predicciones = model.predict(X)
-                df_input["AVALUO_PREDICHO"] = predicciones
-
+                df_input["AVALUO_PREDICHO"] = model.predict(X)
                 st.success("✅ Predicciones generadas correctamente.")
                 st.dataframe(df_input.head())
 
@@ -197,6 +197,5 @@ else:
                     file_name="predicciones_avaluos.csv",
                     mime="text/csv",
                 )
-
         except Exception as e:
             st.error(f"⚠️ Error al procesar el archivo: {e}")
